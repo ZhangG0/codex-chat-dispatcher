@@ -4,7 +4,7 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-[Installation](#installation) · [Configuration](#configuration) · [Usage](#usage) · [CLI guide (中文)](docs/usage.md) · [MIT License](LICENSE)
+[Who is it for?](#who-is-it-for) · [Installation](#installation) · [Configuration](#configuration) · [Usage](#usage) · [CLI guide (中文)](docs/usage.md) · [MIT License](LICENSE)
 
 For people maintaining several projects in Codex: one coordinator chat assigns work and verifies results, while existing project chats keep their context and handle implementation. A local SQLite ledger records tasks, dispatch attempts, shared resource claims, and verification evidence.
 
@@ -16,11 +16,30 @@ You → Coordinator chat → Native Codex chat tools → Existing project chats
 
 ## Why use it?
 
+Managing several project chats creates coordination work: remembering where a task went, deciding whether a timed-out send should be retried, checking who still owns a shared resource, and collecting evidence before declaring work done. This project gives that work a repeatable process and a persistent record.
+
+Its value is continuity and traceability across existing chats. It helps the coordinator answer: **Who owns this task? Was it sent? What was verified? Is it safe to release the resource?** Results still depend on the coordinator checking real evidence and all participating chats following the workflow.
+
 - **Keep project context.** Delegate to existing chats instead of creating a new worker for each request.
 - **Reduce duplicate dispatches.** Deduplicate by request key, record attempts before sending, and investigate uncertain delivery before retrying.
 - **Coordinate shared resources.** Track claims on repositories, target chats, production environments, and browsers.
 - **Make completion explicit.** Record implementation, verification, deployment, and live verification separately; release claims after acceptance.
 - **Keep state local.** The ledger uses the Python standard library, with no third-party runtime dependencies.
+
+## Who is it for?
+
+- **Developers maintaining multiple projects in Codex**, with a long-lived chat for each project and one place to coordinate requests.
+- **Solo builders managing several workstreams**, who want to delegate local changes and collect results without repeatedly explaining each project's context.
+- **Users coordinating shared repositories or environments**, who need explicit resource claims and a record of safe handoffs.
+- **Users resuming interrupted work**, who need to distinguish an unsent task, uncertain delivery, ongoing implementation, and verified completion.
+
+### Example scenario
+
+You maintain an application and its documentation in separate project chats. From a coordinator chat, you authorize a local application fix and a documentation update. Each task is routed to its existing chat with its scope and acceptance criteria recorded. If both use the same repository, they claim the same resource so participating tasks can be serialized. The coordinator collects the reports and verifies each result before closing the tasks. If sending is interrupted, the recorded attempt supports investigation before another send.
+
+### When to skip it
+
+A single chat handling occasional tasks may not justify the configuration and ledger. If you need an unattended worker fleet, a visual session manager, or orchestration across different agent products, those capabilities are outside the current scope. Check the host tool requirements below before installing: the full workflow is unavailable without native cross-chat tools.
 
 ## Requirements
 
