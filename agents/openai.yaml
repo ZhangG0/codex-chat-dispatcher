@@ -1,0 +1,4 @@
+interface:
+  display_name: "codex-chat-dispatcher"
+  short_description: "将任务交给已有 Codex 聊天执行，记录派发、占用、恢复与验收证据"
+  default_prompt: "使用 $codex-chat-dispatcher，将已授权任务交给对应的已有 Codex 聊天执行，在当前聊天跟踪并验收结果。"

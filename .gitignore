@@ -1,0 +1,30 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.local/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+config/dispatcher.json
+
+# Local research; excluded from the public repository.
+/docs/alternatives.md
+
+# Private configuration, credentials and local artifacts.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.log
+/backups/
+/credentials/
+/secrets/
+.venv/

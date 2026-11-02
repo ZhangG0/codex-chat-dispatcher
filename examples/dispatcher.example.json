@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "workspace_root": "..",
+  "state_path": "../.local/dispatcher.sqlite3",
+  "resources": [
+    "repo:demo",
+    "server:production",
+    "ui:native-browser"
+  ],
+  "projects": {
+    "demo": {
+      "path": "demo",
+      "host_id": "local",
+      "thread_id": "REPLACE_WITH_TARGET_THREAD_ID",
+      "expected_title": "Demo project",
+      "resources": [
+        "repo:demo"
+      ]
+    }
+  },
+  "entries": {
+    "coordinator": {
+      "host_id": "local",
+      "thread_id": "REPLACE_WITH_COORDINATOR_THREAD_ID",
+      "projects": [
+        "demo"
+      ],
+      "scopes": [
+        "discussion",
+        "local"
+      ],
+      "resources": [
+        "repo:demo",
+        "ui:native-browser"
+      ]
+    }
+  }
+}
