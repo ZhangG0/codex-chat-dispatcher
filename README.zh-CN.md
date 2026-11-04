@@ -1,10 +1,12 @@
-# codex-chat-dispatcher
+# codex-superagent-sample
 
 [English](README.md) | **简体中文**
 
-**一个聊天统筹需求，多个已有 Codex 聊天执行，任务进度有据可查。**
+**一个入口，协调多个已有 Codex 聊天，跟踪任务进度，并依据证据验收结果。一个轻量的 SuperAgent 实践示例。**
 
 [适用人群](#适用人群) · [安装](#安装) · [使用](#使用) · [配置](#配置) · [CLI 文档](docs/usage.md) · [MIT License](LICENSE)
+
+本示例探索如何让协调 agent 将需求交给已有 Codex 项目聊天执行，并依据证据验收结果。项目由 Skill、TypeScript CLI 与本地 SQLite 台账组成。
 
 面向同时维护多个项目的 Codex 用户。协调聊天负责派发和验收，项目聊天保留自己的上下文并完成实现；本地 SQLite 台账记录任务、发送尝试、共享资源占用和验收证据。
 
@@ -54,12 +56,12 @@
 把下面提示词复制到 Codex：
 
 ```text
-请从 https://github.com/ZhangG0/codex-chat-dispatcher 安装 codex-chat-dispatcher。
+请从 https://github.com/ZhangG0/codex-superagent-sample 安装 codex-superagent-sample。
 
 先阅读 README.md 和 SKILL.md，检查当前宿主是否提供 list_threads、read_thread、
 send_message_to_thread、wait_threads，并说明哪些能力可用。
 将源码克隆到合适的本地目录，运行项目测试；把 SKILL.md 与 agents/openai.yaml
-安装到当前宿主支持的个人技能目录，优先使用 ~/.agents/skills/codex-chat-dispatcher。
+安装到当前宿主支持的个人技能目录，优先使用 ~/.agents/skills/codex-superagent-sample。
 若已有安装，先备份并保留个人 policy、dependencies 等设置，避免重复安装。
 
 本次仅安装：不要发送跨聊天消息、绑定真实聊天、修改已有路由或运行数据库。
@@ -69,28 +71,28 @@ send_message_to_thread、wait_threads，并说明哪些能力可用。
 ### 手动安装
 
 ```sh
-git clone https://github.com/ZhangG0/codex-chat-dispatcher.git
-cd codex-chat-dispatcher
+git clone https://github.com/ZhangG0/codex-superagent-sample.git
+cd codex-superagent-sample
 npm ci
 npm test
 
 # 首次安装；目标存在时停止，避免覆盖个人设置。
-skill_dir="$HOME/.agents/skills/codex-chat-dispatcher"
+skill_dir="$HOME/.agents/skills/codex-superagent-sample"
 test ! -e "$skill_dir" && mkdir -p "$skill_dir/agents" &&
   cp SKILL.md "$skill_dir/SKILL.md" &&
   cp agents/openai.yaml "$skill_dir/agents/openai.yaml"
 ```
 
-也可安装到目标仓库的 `.agents/skills/codex-chat-dispatcher/`。已有宿主若使用 `~/.codex/skills/`，可沿用该安装根；选择一个能被发现的位置，避免同名副本。安装位置参考 [Codex 官方技能说明](https://learn.chatgpt.com/docs/build-skills)。技能未出现时重新打开 Codex。
+也可安装到目标仓库的 `.agents/skills/codex-superagent-sample/`。已有宿主若使用 `~/.codex/skills/`，可沿用该安装根；选择一个能被发现的位置，避免同名副本。安装位置参考 [Codex 官方技能说明](https://learn.chatgpt.com/docs/build-skills)。技能未出现时重新打开 Codex。
 
-升级前备份原技能，更新正文时保留个人元数据。旧 `chat-dispatcher` 用户需同步目录名、frontmatter 和默认提示中的调用名；无需重建数据库。
+升级前备份原技能，更新正文时保留个人元数据。旧 `chat-dispatcher` 或 `codex-chat-dispatcher` 用户需同步目录名、frontmatter 和默认提示中的调用名；无需重建数据库。
 
 ## 配置
 
 下面建立一个独立临时工作区，验证示例，不接触真实项目：
 
 ```sh
-workspace_dir="$(mktemp -d /tmp/codex-chat-dispatcher.XXXXXX)"
+workspace_dir="$(mktemp -d /tmp/codex-superagent-sample.XXXXXX)"
 mkdir -p "$workspace_dir/config" "$workspace_dir/demo"
 cp examples/dispatcher.example.json "$workspace_dir/config/dispatcher.json"
 node dispatch.ts --config "$workspace_dir/config/dispatcher.json" check
@@ -118,7 +120,7 @@ node dispatch.ts --config "$workspace_dir/config/dispatcher.json" check
 在已绑定的协调聊天中输入：
 
 ```text
-使用 $codex-chat-dispatcher，把 demo 项目的登录校验修复交给已有项目聊天。
+使用 $codex-superagent-sample，把 demo 项目的登录校验修复交给已有项目聊天。
 允许修改本地代码并运行测试，不部署。
 验收标准：空密码不能提交，现有测试通过。
 在当前聊天汇总改动、验证结果和未完成项。

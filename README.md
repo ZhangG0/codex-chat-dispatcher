@@ -1,10 +1,12 @@
-# codex-chat-dispatcher
+# codex-superagent-sample
 
-**Coordinate existing Codex chats from one conversation, with a local record of dispatches, progress, and acceptance.**
+**One entry point to coordinate existing Codex chats, track task progress, and verify results. A lightweight SuperAgent sample.**
 
 **English** | [简体中文](README.zh-CN.md)
 
 [Who is it for?](#who-is-it-for) · [Installation](#installation) · [Configuration](#configuration) · [Usage](#usage) · [CLI guide (中文)](docs/usage.md) · [MIT License](LICENSE)
+
+This sample explores how a coordinator agent can turn a request into delegated work and evidence-based acceptance across existing Codex chats. It combines a skill, a TypeScript CLI, and a local SQLite ledger.
 
 For people maintaining several projects in Codex: one coordinator chat assigns work and verifies results, while existing project chats keep their context and handle implementation. A local SQLite ledger records tasks, dispatch attempts, shared resource claims, and verification evidence.
 
@@ -54,7 +56,7 @@ A single chat handling occasional tasks may not justify the configuration and le
 Copy this prompt into Codex:
 
 ```text
-Install codex-chat-dispatcher from https://github.com/ZhangG0/codex-chat-dispatcher.
+Install codex-superagent-sample from https://github.com/ZhangG0/codex-superagent-sample.
 
 Read README.md and SKILL.md first. Check whether this host exposes list_threads,
 read_thread, send_message_to_thread, and wait_threads. Report which capabilities
@@ -62,7 +64,7 @@ are available.
 
 Clone the source into a suitable local directory and run the project tests.
 Install SKILL.md and agents/openai.yaml into a personal skill directory supported
-by this host, preferring ~/.agents/skills/codex-chat-dispatcher.
+by this host, preferring ~/.agents/skills/codex-superagent-sample.
 If an installation already exists, back it up and preserve personal policy,
 dependencies, and other settings. Avoid duplicate installations.
 
@@ -75,21 +77,21 @@ needed to configure a workspace.
 ### Install manually
 
 ```sh
-git clone https://github.com/ZhangG0/codex-chat-dispatcher.git
-cd codex-chat-dispatcher
+git clone https://github.com/ZhangG0/codex-superagent-sample.git
+cd codex-superagent-sample
 npm ci
 npm test
 
 # First installation only; stop if the destination already exists.
-skill_dir="$HOME/.agents/skills/codex-chat-dispatcher"
+skill_dir="$HOME/.agents/skills/codex-superagent-sample"
 test ! -e "$skill_dir" && mkdir -p "$skill_dir/agents" &&
   cp SKILL.md "$skill_dir/SKILL.md" &&
   cp agents/openai.yaml "$skill_dir/agents/openai.yaml"
 ```
 
-Alternatively, install the same files under your repository's `.agents/skills/codex-chat-dispatcher/`. Existing hosts using `~/.codex/skills/` can retain that location. Choose one location your host discovers and avoid duplicate copies. See the [official Codex skills guide](https://learn.chatgpt.com/docs/build-skills) for discovery locations. Reopen Codex if the skill does not appear.
+Alternatively, install the same files under your repository's `.agents/skills/codex-superagent-sample/`. Existing hosts using `~/.codex/skills/` can retain that location. Choose one location your host discovers and avoid duplicate copies. See the [official Codex skills guide](https://learn.chatgpt.com/docs/build-skills) for discovery locations. Reopen Codex if the skill does not appear.
 
-Back up an existing skill before upgrading and preserve personal metadata. Users migrating from `chat-dispatcher` should update the directory name, frontmatter name, and invocation in the default prompt. The database does not need to be recreated.
+Back up an existing skill before upgrading and preserve personal metadata. Users migrating from `chat-dispatcher` or `codex-chat-dispatcher` should update the directory name, frontmatter name, and invocation in the default prompt. The database does not need to be recreated.
 
 > The skill instructions and detailed CLI guide are currently written in Chinese. The English installation prompt and usage example can be used with Codex; translating the README does not change the CLI interface.
 
@@ -98,7 +100,7 @@ Back up an existing skill before upgrading and preserve personal metadata. Users
 Create an isolated temporary workspace to validate the example without accessing real projects:
 
 ```sh
-workspace_dir="$(mktemp -d /tmp/codex-chat-dispatcher.XXXXXX)"
+workspace_dir="$(mktemp -d /tmp/codex-superagent-sample.XXXXXX)"
 mkdir -p "$workspace_dir/config" "$workspace_dir/demo"
 cp examples/dispatcher.example.json "$workspace_dir/config/dispatcher.json"
 node dispatch.ts --config "$workspace_dir/config/dispatcher.json" check
@@ -126,7 +128,7 @@ Record the actual paths to this project's documentation, `dispatch.ts`, and your
 In a configured coordinator chat, enter:
 
 ```text
-Use $codex-chat-dispatcher to delegate the demo project's login validation fix
+Use $codex-superagent-sample to delegate the demo project's login validation fix
 to its existing project chat.
 Local code changes and tests are authorized; deployment is not authorized.
 Acceptance criteria: empty passwords cannot be submitted, and existing tests pass.
