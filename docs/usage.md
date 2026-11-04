@@ -10,7 +10,7 @@
 
 ```sh
 caller_thread='REPLACE_WITH_COORDINATOR_THREAD_ID'
-dispatch=(python3 dispatch.py --config "$workspace_dir/config/dispatcher.json"
+dispatch=(node dispatch.ts --config "$workspace_dir/config/dispatcher.json"
   --entry coordinator --caller-host local --caller-thread "$caller_thread")
 
 "${dispatch[@]}" list
@@ -66,7 +66,7 @@ attempt_id='REPLACE_WITH_RETURNED_ATTEMPT'
 
 只合并实际返回的项；未返回目标的游标保留。`list` 的游标可用作后续等待的 `afterCursor`。若宿主返回结构不同，调用方须先规范化，不能把整个工具消息封装直接传入。
 
-配置可显式通过 `--config` 提供，也兼容环境变量 `ZEO_DISPATCH_CONFIG`（历史名称保留）。完整参数以 `python3 dispatch.py --help` 和各子命令 `--help` 为准。
+配置可显式通过 `--config` 提供，也兼容环境变量 `ZEO_DISPATCH_CONFIG`（历史名称保留）。完整参数以 `node dispatch.ts --help` 和各子命令 `--help` 为准。
 
 ## 数据与维护
 

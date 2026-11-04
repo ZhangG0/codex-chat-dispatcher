@@ -11,7 +11,7 @@
 ```text
 你 → 协调聊天 → Codex 原生聊天工具 → 已有项目聊天
          ↓                              ↓
-     Python / SQLite ← 回执、进度与验收证据
+     TypeScript / SQLite ← 回执、进度与验收证据
 ```
 
 ## 为什么使用它
@@ -24,7 +24,7 @@
 - **减少重复派发**：按请求 key 去重，发送前记录 attempt，发送结果不明时先核实。
 - **协调共享资源**：记录仓库、目标聊天、生产环境和浏览器的占用。
 - **明确完成标准**：实现、验证、部署和线上验证分别登记，验收后释放占用。
-- **运行状态留在本地**：Python 标准库实现，无需第三方运行依赖。
+- **运行状态留在本地**：TypeScript 实现，使用 Node 内置 SQLite，无第三方运行依赖。
 
 ## 适用人群
 
@@ -43,7 +43,8 @@
 
 ## 环境要求
 
-- Python 3.9+，包含标准库 `sqlite3`；CLI 面向 macOS/Linux，Windows 原生环境尚未验证。
+- Node.js 24.12+，使用内置 TypeScript 与 `node:sqlite`，运行无需构建或安装第三方包；CLI 面向 macOS/Linux，Windows 原生环境尚未验证。
+- 开发检查先执行 `npm ci`；兼容性测试另需 Python 3.9+，用于对照原始实现。Node 24 可能在 stderr 输出 SQLite 实验性警告，JSON 结果输出到 stdout。
 - 完整调度流程要求 Codex 宿主提供 `list_threads`、`read_thread`、`send_message_to_thread`、`wait_threads`。安装技能不会添加这些工具；缺少工具的环境只能使用台账和测试。
 
 ## 安装
@@ -70,7 +71,8 @@ send_message_to_thread、wait_threads，并说明哪些能力可用。
 ```sh
 git clone https://github.com/ZhangG0/codex-chat-dispatcher.git
 cd codex-chat-dispatcher
-python3 -m unittest discover -s . -p 'test_*.py' -v
+npm ci
+npm test
 
 # 首次安装；目标存在时停止，避免覆盖个人设置。
 skill_dir="$HOME/.agents/skills/codex-chat-dispatcher"
@@ -91,7 +93,7 @@ test ! -e "$skill_dir" && mkdir -p "$skill_dir/agents" &&
 workspace_dir="$(mktemp -d /tmp/codex-chat-dispatcher.XXXXXX)"
 mkdir -p "$workspace_dir/config" "$workspace_dir/demo"
 cp examples/dispatcher.example.json "$workspace_dir/config/dispatcher.json"
-python3 dispatch.py --config "$workspace_dir/config/dispatcher.json" check
+node dispatch.ts --config "$workspace_dir/config/dispatcher.json" check
 ```
 
 `check` 只检查静态配置与目录，不核实聊天身份，也不创建数据库。
@@ -109,7 +111,7 @@ python3 dispatch.py --config "$workspace_dir/config/dispatcher.json" check
 
 示例 ID 是占位值。通过原生工具核实当前协调聊天与目标聊天身份，确认绑定后再使用；caller 必须来自当前宿主上下文，不能从配置抄取身份冒充入口。示例默认仅允许讨论和本地任务。
 
-在工作区 README 或 AGENTS.md 中记录源码说明、`dispatch.py` 和配置的实际路径，让技能能够发现它们。真实配置和 `.local/` 状态目录应加入该工作区的 `.gitignore`。
+在工作区 README 或 AGENTS.md 中记录源码说明、`dispatch.ts` 和配置的实际路径，让技能能够发现它们。真实配置和 `.local/` 状态目录应加入该工作区的 `.gitignore`。
 
 ## 使用
 
@@ -135,7 +137,9 @@ CLI 是本地台账，不调用模型、不发送消息、不执行部署。当�
 ## 开发与贡献
 
 ```sh
-python3 -m unittest discover -s . -p 'test_*.py' -v
+npm ci
+npm run typecheck
+npm test
 ```
 
 测试使用临时目录与合成数据，覆盖去重、恢复、并发占用、入口白名单、阶段验收和游标合并，不发送真实消息。欢迎提交 Issue 或 PR；请描述复现步骤、预期行为和验证方式，分享日志前移除私人信息。
@@ -143,11 +147,13 @@ python3 -m unittest discover -s . -p 'test_*.py' -v
 ```text
 SKILL.md                          调度技能
 agents/openai.yaml                技能显示信息
-dispatch.py                      台账 CLI
-test_dispatch.py                  单元测试
+dispatch.ts                      TypeScript 台账 CLI
+tests/test_dispatch.py            行为与兼容性测试
 examples/dispatcher.example.json  合成配置示例
 docs/usage.md                     CLI 与维护说明
 ```
+
+台账统一通过 `node dispatch.ts ...` 运行，原 Python 入口已移除。现有 SQLite 文件与配置格式兼容，无需迁移数据库。`tests/reference_dispatch.py` 是仅供兼容性验证使用的原始 Python 实现。
 
 ## 许可证
 

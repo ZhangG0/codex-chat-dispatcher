@@ -6,7 +6,7 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 
-from dispatch import Conflict, Ledger, read_config
+from ts_adapter import Conflict, Ledger, read_config
 
 
 class DispatchTests(unittest.TestCase):
@@ -210,6 +210,24 @@ class DispatchTests(unittest.TestCase):
             self.assertNotEqual(new['id'], t['id'])
         finally:
             other.db.close()
+
+    def test_python_database_roundtrip_and_unicode_request_keys(self):
+        from reference_dispatch import Ledger as PythonLedger
+        original = PythonLedger(self.path, 'entry', 'local', 'entry-id')
+        try:
+            key = '中文, emoji😀'
+            t = original.create(key, 'finance', '兼容测试', 'local', 'synthetic authorization')
+            self.assertEqual(self.l.create(key, 'finance', '兼容测试', 'local', 'synthetic authorization')['id'], t['id'])
+            new = self.l.create('另一个,key😀', 'portal', '新任务', 'local', 'synthetic authorization')
+            self.assertEqual(original.create('另一个,key😀', 'portal', '新任务', 'local', 'synthetic authorization')['id'], new['id'])
+            ready = original.prepare(t['id'])
+            self.l.receipt(t['id'], ready['attempt'], 'synthetic receipt')
+            original.progress(t['id'], 'implemented', 'synthetic diff')
+            self.l.progress(t['id'], 'verified', 'synthetic checks')
+            original.finish(t['id'], 'synthetic review')
+            self.assertEqual(self.l.get(t['id'])['status'], 'completed')
+        finally:
+            original.db.close()
 
 
 if __name__ == '__main__':

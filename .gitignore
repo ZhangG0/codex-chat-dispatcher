@@ -28,3 +28,4 @@ config/dispatcher.json
 /credentials/
 /secrets/
 .venv/
+node_modules/

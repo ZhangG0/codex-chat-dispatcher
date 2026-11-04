@@ -11,7 +11,7 @@ For people maintaining several projects in Codex: one coordinator chat assigns w
 ```text
 You → Coordinator chat → Native Codex chat tools → Existing project chats
               ↓                                          ↓
-       Python / SQLite ← Receipts, progress, and verification evidence
+       TypeScript / SQLite ← Receipts, progress, and verification evidence
 ```
 
 ## Why use it?
@@ -24,7 +24,7 @@ Its value is continuity and traceability across existing chats. It helps the coo
 - **Reduce duplicate dispatches.** Deduplicate by request key, record attempts before sending, and investigate uncertain delivery before retrying.
 - **Coordinate shared resources.** Track claims on repositories, target chats, production environments, and browsers.
 - **Make completion explicit.** Record implementation, verification, deployment, and live verification separately; release claims after acceptance.
-- **Keep state local.** The ledger uses the Python standard library, with no third-party runtime dependencies.
+- **Keep state local.** The TypeScript ledger uses built-in Node.js SQLite, with no third-party runtime dependencies.
 
 ## Who is it for?
 
@@ -43,7 +43,8 @@ A single chat handling occasional tasks may not justify the configuration and le
 
 ## Requirements
 
-- Python 3.9+ with the standard-library `sqlite3` module. The CLI targets macOS/Linux; native Windows support has not been verified.
+- Node.js 24.12+ (24.x or newer) with built-in TypeScript and `node:sqlite`. No build step or runtime package installation is needed. The CLI targets macOS/Linux; native Windows support has not been verified.
+- Development checks require `npm ci`; the compatibility suite also requires Python 3.9+ to compare against the original implementation. Node 24 may emit an experimental SQLite warning on stderr; JSON results are written to stdout.
 - The full workflow requires a Codex host that exposes `list_threads`, `read_thread`, `send_message_to_thread`, and `wait_threads`. Installing the skill does **not** add these tools. Environments without them can still use the ledger and run tests.
 
 ## Installation
@@ -76,7 +77,8 @@ needed to configure a workspace.
 ```sh
 git clone https://github.com/ZhangG0/codex-chat-dispatcher.git
 cd codex-chat-dispatcher
-python3 -m unittest discover -s . -p 'test_*.py' -v
+npm ci
+npm test
 
 # First installation only; stop if the destination already exists.
 skill_dir="$HOME/.agents/skills/codex-chat-dispatcher"
@@ -99,7 +101,7 @@ Create an isolated temporary workspace to validate the example without accessing
 workspace_dir="$(mktemp -d /tmp/codex-chat-dispatcher.XXXXXX)"
 mkdir -p "$workspace_dir/config" "$workspace_dir/demo"
 cp examples/dispatcher.example.json "$workspace_dir/config/dispatcher.json"
-python3 dispatch.py --config "$workspace_dir/config/dispatcher.json" check
+node dispatch.ts --config "$workspace_dir/config/dispatcher.json" check
 ```
 
 `check` validates static configuration and directories. It does not verify chat identities or create a database.
@@ -117,7 +119,7 @@ For actual use, copy the example to your workspace's `config/dispatcher.json` an
 
 Example IDs are placeholders. Verify the coordinator and target identities through native tools and confirm the bindings before use. Caller identity must come from the current host context, rather than being copied from the configuration to impersonate an entry. The example permits discussion and local tasks only.
 
-Record the actual paths to this project's documentation, `dispatch.py`, and your configuration in the workspace README or AGENTS.md so the skill can discover them. Ignore real configuration and the `.local/` state directory in that workspace's `.gitignore`.
+Record the actual paths to this project's documentation, `dispatch.ts`, and your configuration in the workspace README or AGENTS.md so the skill can discover them. Ignore real configuration and the `.local/` state directory in that workspace's `.gitignore`.
 
 ## Usage
 
@@ -144,7 +146,9 @@ Entry checks and resource claims help prevent mistakes within this workflow. The
 ## Development and contributing
 
 ```sh
-python3 -m unittest discover -s . -p 'test_*.py' -v
+npm ci
+npm run typecheck
+npm test
 ```
 
 Tests use temporary directories and synthetic data. They cover deduplication, recovery, concurrent claims, entry allowlists, verification stages, and cursor merging without sending real messages.
@@ -154,12 +158,14 @@ Issues and pull requests are welcome. Include reproduction steps, expected behav
 ```text
 SKILL.md                          Dispatch skill
 agents/openai.yaml                Skill display metadata
-dispatch.py                       Ledger CLI
-test_dispatch.py                  Unit tests
+dispatch.ts                       TypeScript ledger CLI
+tests/test_dispatch.py            Behavioral and compatibility tests
 examples/dispatcher.example.json  Synthetic configuration example
 docs/usage.md                     CLI and operations guide (Chinese)
 README.zh-CN.md                   Chinese README
 ```
+
+Run the ledger with `node dispatch.ts ...`; the former Python entry has been removed. Existing SQLite files and routing configuration remain compatible; no database migration is required. `tests/reference_dispatch.py` is the frozen Python implementation used only for compatibility checks.
 
 ## License
 
